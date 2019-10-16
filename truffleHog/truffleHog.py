@@ -153,6 +153,7 @@ def clone_git_repo(git_url):
     return project_path
 
 def print_results(printJson, issue):
+    # import pdb; pdb.set_trace()
     commit_time = issue['date']
     branch_name = issue['branch']
     prev_commit = issue['commit']
@@ -164,29 +165,21 @@ def print_results(printJson, issue):
     if printJson:
         print(json.dumps(issue, sort_keys=True))
     else:
-        print("~~~~~~~~~~~~~~~~~~~~~")
-        reason = "{}Reason: {}{}".format(bcolors.OKGREEN, reason, bcolors.ENDC)
-        print(reason)
-        dateStr = "{}Date: {}{}".format(bcolors.OKGREEN, commit_time, bcolors.ENDC)
-        print(dateStr)
-        hashStr = "{}Hash: {}{}".format(bcolors.OKGREEN, commitHash, bcolors.ENDC)
-        print(hashStr)
-        filePath = "{}Filepath: {}{}".format(bcolors.OKGREEN, path, bcolors.ENDC)
-        print(filePath)
 
         if sys.version_info >= (3, 0):
             branchStr = "{}Branch: {}{}".format(bcolors.OKGREEN, branch_name, bcolors.ENDC)
-            print(branchStr)
             commitStr = "{}Commit: {}{}".format(bcolors.OKGREEN, prev_commit, bcolors.ENDC)
-            print(commitStr)
-            print(printableDiff)
+            if '@' in printableDiff:
+                pass
+            else:
+                print(printableDiff)
         else:
             branchStr = "{}Branch: {}{}".format(bcolors.OKGREEN, branch_name.encode('utf-8'), bcolors.ENDC)
-            print(branchStr)
+            # print(branchStr)
             commitStr = "{}Commit: {}{}".format(bcolors.OKGREEN, prev_commit.encode('utf-8'), bcolors.ENDC)
-            print(commitStr)
+            # print(commitStr)
             print(printableDiff.encode('utf-8'))
-        print("~~~~~~~~~~~~~~~~~~~~~")
+        # print("~~~~~~~~~~~~~~~~~~~~~")
 
 def find_entropy(printableDiff, commit_time, branch_name, prev_commit, blob, commitHash):
     stringsFound = []
@@ -229,18 +222,18 @@ def regex_check(printableDiff, commit_time, branch_name, prev_commit, blob, comm
         found_strings = secret_regexes[key].findall(printableDiff)
         for found_string in found_strings:
             found_diff = printableDiff.replace(printableDiff, bcolors.WARNING + found_string + bcolors.ENDC)
-        if found_strings:
-            foundRegex = {}
-            foundRegex['date'] = commit_time
-            foundRegex['path'] = blob.b_path if blob.b_path else blob.a_path
-            foundRegex['branch'] = branch_name
-            foundRegex['commit'] = prev_commit.message
-            foundRegex['diff'] = blob.diff.decode('utf-8', errors='replace')
-            foundRegex['stringsFound'] = found_strings
-            foundRegex['printDiff'] = found_diff
-            foundRegex['reason'] = key
-            foundRegex['commitHash'] = prev_commit.hexsha
-            regex_matches.append(foundRegex)
+            if found_strings:
+                foundRegex = {}
+                foundRegex['date'] = commit_time
+                foundRegex['path'] = blob.b_path if blob.b_path else blob.a_path
+                foundRegex['branch'] = branch_name
+                foundRegex['commit'] = prev_commit.message
+                foundRegex['diff'] = blob.diff.decode('utf-8', errors='replace')
+                foundRegex['stringsFound'] = found_strings
+                foundRegex['printDiff'] = found_diff
+                foundRegex['reason'] = key
+                foundRegex['commitHash'] = prev_commit.hexsha
+                regex_matches.append(foundRegex)
     return regex_matches
 
 def diff_worker(diff, curr_commit, prev_commit, branch_name, commitHash, custom_regexes, do_entropy, do_regex, printJson, surpress_output, path_inclusions, path_exclusions):
@@ -363,3 +356,4 @@ def clean_up(output):
 
 if __name__ == "__main__":
     main()
+

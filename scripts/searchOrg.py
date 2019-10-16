@@ -1,5 +1,5 @@
 """
-Credit for this code goes to https://github.com/ryanbaxendale 
+Credit for this code goes to https://github.com/ryanbaxendale
 via https://github.com/dxa4481/truffleHog/pull/9
 """
 import requests
@@ -9,6 +9,7 @@ from json import loads, dumps
 
 rules = {
     "Slack Token": "(xox[p|b|o|a]-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32})",
+    "Slack Bot": "(xox[p|b|o|a]-[0-9]{0,11}-[a-zA-Z0-9]{0,24})",
     "RSA private key": "-----BEGIN RSA PRIVATE KEY-----",
     "SSH (OPENSSH) private key": "-----BEGIN OPENSSH PRIVATE KEY-----",
     "SSH (DSA) private key": "-----BEGIN DSA PRIVATE KEY-----",

@@ -153,34 +153,8 @@ def clone_git_repo(git_url):
     return project_path
 
 def print_results(printJson, issue):
-    # import pdb; pdb.set_trace()
-    commit_time = issue['date']
-    branch_name = issue['branch']
-    prev_commit = issue['commit']
-    printableDiff = issue['printDiff']
-    commitHash = issue['commitHash']
-    reason = issue['reason']
-    path = issue['path']
-
-    if printJson:
-        print(json.dumps(issue, sort_keys=True))
-    else:
-
-        if sys.version_info >= (3, 0):
-            branchStr = "{}Branch: {}{}".format(bcolors.OKGREEN, branch_name, bcolors.ENDC)
-            commitStr = "{}Commit: {}{}".format(bcolors.OKGREEN, prev_commit, bcolors.ENDC)
-            if '@' in printableDiff:
-                pass
-            else:
-                print(printableDiff)
-        else:
-            branchStr = "{}Branch: {}{}".format(bcolors.OKGREEN, branch_name.encode('utf-8'), bcolors.ENDC)
-            # print(branchStr)
-            commitStr = "{}Commit: {}{}".format(bcolors.OKGREEN, prev_commit.encode('utf-8'), bcolors.ENDC)
-            # print(commitStr)
-            print(printableDiff.encode('utf-8'))
-        # print("~~~~~~~~~~~~~~~~~~~~~")
-
+    print(issue['stringsFound'][0])
+   
 def find_entropy(printableDiff, commit_time, branch_name, prev_commit, blob, commitHash):
     stringsFound = []
     lines = printableDiff.split("\n")
@@ -239,7 +213,16 @@ def regex_check(printableDiff, commit_time, branch_name, prev_commit, blob, comm
 def diff_worker(diff, curr_commit, prev_commit, branch_name, commitHash, custom_regexes, do_entropy, do_regex, printJson, surpress_output, path_inclusions, path_exclusions):
     issues = []
     for blob in diff:
-        printableDiff = blob.diff.decode('utf-8', errors='replace')
+        curr_diff = []
+        prev_diff = blob.diff.split('\r\n')
+        for item in prev_diff:
+            if item.startswith('-'):
+                continue
+            else:
+                curr_diff.append(item)
+        updated_diff = "\r\n".join(curr_diff)
+        printableDiff = updated_diff.decode('utf-8', errors='replace')
+
         if printableDiff.startswith("Binary files"):
             continue
         if not path_included(blob, path_inclusions, path_exclusions):

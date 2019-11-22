@@ -154,7 +154,7 @@ def clone_git_repo(git_url):
 
 def print_results(printJson, issue):
     print(issue['stringsFound'][0])
-   
+
 def find_entropy(printableDiff, commit_time, branch_name, prev_commit, blob, commitHash):
     stringsFound = []
     lines = printableDiff.split("\n")
@@ -214,8 +214,12 @@ def diff_worker(diff, curr_commit, prev_commit, branch_name, commitHash, custom_
     issues = []
     for blob in diff:
         curr_diff = []
-        prev_diff = blob.diff.split('\r\n')
+        if '\r\n' in blob.diff:
+            prev_diff = blob.diff.split('\r\n')
+        else:
+            prev_diff = blob.diff.split('\n')
         for item in prev_diff:
+            # import pdb; pdb.set_trace()
             if item.startswith('-'):
                 continue
             else:
@@ -339,4 +343,5 @@ def clean_up(output):
 
 if __name__ == "__main__":
     main()
+
 

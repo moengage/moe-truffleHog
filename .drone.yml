@@ -1,29 +1,46 @@
 ---
-
 kind: pipeline
-type: docker
-name: Trufflehog
-    
+name: trufflehog
+
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+
+volumes:
+- name: dockersock
+  temp: {}
+
 steps:
-- name : Truffle-hog clone  
-  image: docker:git
-  commands:    
-     - git clone https://github.com/moengage/moe-truffleHog.git --branch dev
-  when:
-    trigger:
-    - pull_request
-    
-- name: Run truffle-hog
-  image: python:2.7-alpine
+- name: Trufflehog Build
+  image: docker:dind
   commands:
-      - apk add --no-cache git
-      - echo $DRONE_SOURCE_BRANCH
-      - echo $DRONE_REPO
-      - cd moe-truffleHog
-      - git branch
-      -	pip install -r requirements.txt
-      - python truffleHog/truffleHog.py --regex --rules rules.json --max_depth 1 --branch $DRONE_SOURCE_BRANCH "https://github.com/$DRONE_REPO.git" --entropy true 
-      - echo "No tokens Found"
+    - sleep 10
+    - docker build ./ecr/
+  volumes:
+    - name: dockersock
+      path: /var/run
   when:
-    trigger:
-    - pull_request
+    changeset:
+      includes: [ ecr/** ]
+- name: Publish Trufflehog to ecr
+  image: plugins/ecr
+  settings:
+    context: ./ecr/
+    dockerfile: ./ecr/Dockerfile
+    repo: 612427630422.dkr.ecr.us-east-1.amazonaws.com/sre/moe-trufflehog
+    registry: 612427630422.dkr.ecr.us-east-1.amazonaws.com
+    tags:
+      - ${DRONE_COMMIT_SHA:0:8}
+      - ${DRONE_COMMIT_BRANCH}
+      - latest
+  when:
+    changeset:
+      includes: [ ecr/** ]
+
+trigger:
+  branch: master
+  event: [ push ]

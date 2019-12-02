@@ -214,7 +214,10 @@ def diff_worker(diff, curr_commit, prev_commit, branch_name, commitHash, custom_
     issues = []
     for blob in diff:
         curr_diff = []
-        prev_diff = blob.diff.split('\r\n')
+        if '\r\n' in blob.diff:
+            prev_diff = blob.diff.split('\r\n')
+        else:
+            prev_diff = blob.diff.split('\n')
         for item in prev_diff:
             if item.startswith('-'):
                 continue

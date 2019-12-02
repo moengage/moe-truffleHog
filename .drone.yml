@@ -1,0 +1,46 @@
+---
+kind: pipeline
+name: trufflehog
+
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+
+volumes:
+- name: dockersock
+  temp: {}
+
+steps:
+- name: Trufflehog Build
+  image: docker:dind
+  commands:
+    - sleep 10
+    - docker build ./ecr/
+  volumes:
+    - name: dockersock
+      path: /var/run
+  when:
+    changeset:
+      includes: [ ecr/** ]
+- name: Publish Trufflehog to ecr
+  image: plugins/ecr
+  settings:
+    context: ./ecr/
+    dockerfile: ./ecr/Dockerfile
+    repo: 612427630422.dkr.ecr.us-east-1.amazonaws.com/sre/moe-trufflehog
+    registry: 612427630422.dkr.ecr.us-east-1.amazonaws.com
+    tags:
+      - ${DRONE_COMMIT_SHA:0:8}
+      - ${DRONE_COMMIT_BRANCH}
+      - latest
+  when:
+    changeset:
+      includes: [ ecr/** ]
+
+trigger:
+  branch: master
+  event: [ push ]

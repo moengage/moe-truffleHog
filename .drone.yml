@@ -2,6 +2,7 @@
 kind: pipeline
 name: truffleHog
 
+steps:
 - name: TruffleHog ECR build
   image: plugins/ecr
   settings:

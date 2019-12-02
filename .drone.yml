@@ -23,9 +23,6 @@ steps:
   volumes:
     - name: dockersock
       path: /var/run
-  when:
-    changeset:
-      includes: [ ecr/** ]
 - name: Publish Trufflehog to ecr
   image: plugins/ecr
   settings:
@@ -37,9 +34,6 @@ steps:
       - ${DRONE_COMMIT_SHA:0:8}
       - ${DRONE_COMMIT_BRANCH}
       - latest
-  when:
-    changeset:
-      includes: [ ecr/** ]
 
 trigger:
   branch: dev

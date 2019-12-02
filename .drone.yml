@@ -42,5 +42,5 @@ steps:
       includes: [ ecr/** ]
 
 trigger:
-  branch: master
+  branch: dev
   event: [ push ]

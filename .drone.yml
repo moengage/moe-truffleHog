@@ -2,29 +2,7 @@
 kind: pipeline
 name: truffleHog
 
-services:
-- name: docker
-  image: docker:dind
-  privileged: true
-  volumes:
-    - name: dockersock
-      path: /var/run
-
-volumes:
-  - name: dockersock
-    temp: {}
-
-steps:
-- name: TruffleHog code build
-  image: docker:dind
-  commands:
-    - sleep 10
-    - docker build ./ecr/
-  volumes:
-    - name: dockersock
-      path: /var/run
-
-- name: Helm Tiller CA publish
+- name: TruffleHog ECR build
   image: plugins/ecr
   settings:
     context: ./ecr/
@@ -39,4 +17,3 @@ steps:
 trigger:
   branch: dev
   event: [ push ]
-

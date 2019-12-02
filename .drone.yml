@@ -2,6 +2,7 @@
 kind: pipeline
 name: trufflehog
 
+
 services:
 - name: docker
   image: docker:dind

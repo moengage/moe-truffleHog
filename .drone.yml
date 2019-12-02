@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: trufflehog
+name: truffleHog
 
 services:
 - name: docker
@@ -15,7 +15,7 @@ volumes:
   temp: {}
 
 steps:
-- name: Trufflehog Build
+- name: TruffleHog code build
   image: docker:dind
   commands:
     - sleep 10
@@ -24,7 +24,7 @@ steps:
     - name: dockersock
       path: /var/run
 
-- name: Publish Trufflehog to ecr
+- name: Helm Tiller CA publish
   image: plugins/ecr
   settings:
     context: ./ecr/
